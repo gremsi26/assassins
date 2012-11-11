@@ -1,4 +1,0 @@
-assassins
-=========
-
-assassins android game
