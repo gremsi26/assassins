@@ -2,6 +2,7 @@ package com.hkw.assassins;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
@@ -48,6 +49,10 @@ public class MainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
+        	case R.id.menu_playerinfo:
+        	 DialogFragment newFragment = new TargetInfoDialog();
+        	 newFragment.show(getFragmentManager(), "missiles");
+        	 return true;
             case R.id.menu_settings:
                 return true;
             case R.id.menu_startgame:
