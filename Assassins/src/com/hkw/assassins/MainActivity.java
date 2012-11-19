@@ -1,5 +1,7 @@
 package com.hkw.assassins;
 
+import com.google.android.maps.MapActivity;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.DialogFragment;
@@ -19,7 +21,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class MainActivity extends Activity { 
+public class MainActivity extends MapActivity { 
 	
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,6 +30,7 @@ public class MainActivity extends Activity {
         // Set up the action bar.
         final ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowTitleEnabled(true);
+        
     }
 
     @Override
@@ -68,4 +71,8 @@ public class MainActivity extends Activity {
         }
     }
 
+    @Override
+    protected boolean isRouteDisplayed(){
+    	return false;
+    }
 }

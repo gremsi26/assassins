@@ -4,5 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity" >
-    
-    </FrameLayout>
+
+    <com.google.android.maps.MapView
+                 android:layout_width="fill_parent"
+                 android:layout_height="fill_parent"
+                 android:apiKey="0rdMPWMH_0pmuorb8qV7BIz2QrDRK8O349LH7bg"
+                 />
+</FrameLayout>
