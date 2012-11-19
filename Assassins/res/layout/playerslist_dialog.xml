@@ -1,0 +1,56 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <ImageView
+        android:src="@drawable/ic_launcher"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:scaleType="center"
+        android:background="#000000"
+        android:contentDescription="@string/app_name" 
+    />
+
+    <TextView
+        android:id="@+id/playserlist_edittext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Player List:"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:gravity="center"
+        android:padding="10dp"
+        android:typeface="serif" />
+    
+    
+<!-- 
+    <EditText
+        android:id="@+id/username"
+        android:inputType="textEmailAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginBottom="4dp"
+        android:hint="Username" />
+    <EditText
+        android:id="@+id/password"
+        android:inputType="textPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginBottom="16dp"
+        android:hint="Password"/>
+        
+  -->
+
+    <ListView
+        android:id="@+id/listView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+    </ListView>
+
+</LinearLayout>

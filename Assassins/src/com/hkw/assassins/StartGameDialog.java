@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 
 
-public class TargetInfoDialog extends DialogFragment {
+public class StartGameDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -17,9 +17,9 @@ public class TargetInfoDialog extends DialogFragment {
 
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
-        builder.setView(inflater.inflate(R.layout.targetinfo_dialog, null))
+        builder.setView(inflater.inflate(R.layout.startgame_dialog, null))
         // Add action buttons
-               .setPositiveButton("Locate", new DialogInterface.OnClickListener() {
+               .setPositiveButton("Start Game", new DialogInterface.OnClickListener() {
                    @Override
                    public void onClick(DialogInterface dialog, int id) {
                        // sign in the user ...

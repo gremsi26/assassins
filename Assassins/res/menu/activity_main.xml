@@ -1,10 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/menu_playerinfo"
+    <item android:id="@+id/menu_targetinfo"
         android:title="@string/menu_playerinfo"
         android:icon="@drawable/action_about"
         android:orderInCategory="0"
         android:showAsAction="ifRoom" />
-    <item android:id="@+id/menu_targetinfo"
+    <item android:id="@+id/menu_playersinfo"
         android:title="@string/menu_targetinfo"
         android:icon="@drawable/social_cc_bcc"
         android:orderInCategory="1"

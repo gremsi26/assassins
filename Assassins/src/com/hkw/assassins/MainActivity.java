@@ -49,13 +49,19 @@ public class MainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-        	case R.id.menu_playerinfo:
-        	 DialogFragment newFragment = new TargetInfoDialog();
-        	 newFragment.show(getFragmentManager(), "missiles");
+        	case R.id.menu_playersinfo:
+           	 DialogFragment playerslistFragment = new PlayersListDialog();
+            	playerslistFragment.show(getFragmentManager(), "missiles");
+        	return true;
+        	case R.id.menu_targetinfo:
+        	 DialogFragment targetinfoFragment = new TargetInfoDialog();
+        	  targetinfoFragment.show(getFragmentManager(), "missiles");
         	 return true;
             case R.id.menu_settings:
                 return true;
             case R.id.menu_startgame:
+           	 DialogFragment startgameFragment = new StartGameDialog();
+           	startgameFragment.show(getFragmentManager(), "missiles");
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
