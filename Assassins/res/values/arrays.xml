@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    	<string-array name="PlayersArray">
+	    <item >Nathan Fan</item>
+	    <item >Will Barr</item>
+	    <item >Jaron Gao</item>    
+	</string-array>
+</resources>
