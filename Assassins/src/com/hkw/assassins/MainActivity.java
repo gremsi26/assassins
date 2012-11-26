@@ -21,6 +21,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,11 +30,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import com.google.android.gcm.GCMRegistrar;
 
 public class MainActivity extends MapActivity { 
 	
 	private MapView mapView;
-    
+    private String TAG = "MainActivity";
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -43,6 +45,16 @@ public class MainActivity extends MapActivity {
         actionBar.setDisplayShowTitleEnabled(true);
         
         initMap();
+        
+        GCMRegistrar.checkDevice(this);
+        GCMRegistrar.checkManifest(this);
+        final String regId = GCMRegistrar.getRegistrationId(this);
+        if (regId.equals("")) {
+            Log.v(TAG, "Registering");
+          GCMRegistrar.register(this, "138142482844");
+        } else {
+          Log.v(TAG, "Already registered");
+        }
     }
     /**
      * Initialise the map and adds the zoomcontrols to the LinearLayout.
