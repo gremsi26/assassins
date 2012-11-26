@@ -6,8 +6,15 @@
     tools:context=".MainActivity" >
 
     <com.google.android.maps.MapView
+   				 android:id="@+id/mapView"
                  android:layout_width="fill_parent"
                  android:layout_height="fill_parent"
-                 android:apiKey="0rdMPWMH_0pmuorb8qV7BIz2QrDRK8O349LH7bg"
+				 android:enabled="true"
+				 android:clickable="true"
+                 android:apiKey="0CIEr9K6m7w7AQxHR7DpnWmPPut8GJ6ikQOKC2A"
+                 
                  />
-</FrameLayout>
+</FrameLayout> 
+
+
+                 <!--  jaron: "0rdMPWMH_0pmuorb8qV7BIz2QrDRK8O349LH7bg"-->
