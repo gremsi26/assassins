@@ -1,6 +1,7 @@
 package com.hkw.assassins;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -9,6 +10,8 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.DialogFragment;
@@ -22,6 +25,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -46,12 +50,23 @@ public class MainActivity extends MapActivity {
         
         initMap();
         
+        //register user on our server
+        Pattern emailPattern = Patterns.EMAIL_ADDRESS; // API level 8+
+        Account[] accounts = AccountManager.get(this).getAccounts();
+        for (Account account : accounts) {
+            if (emailPattern.matcher(account.name).matches()) {
+                String possibleEmail = account.name;
+            }
+        }
+        
+        //register for gcm
         GCMRegistrar.checkDevice(this);
         GCMRegistrar.checkManifest(this);
         final String regId = GCMRegistrar.getRegistrationId(this);
         if (regId.equals("")) {
             Log.v(TAG, "Registering");
           GCMRegistrar.register(this, "138142482844");
+          //send registration id to server
         } else {
           Log.v(TAG, "Already registered");
         }

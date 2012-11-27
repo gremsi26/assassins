@@ -9,7 +9,7 @@
     
     <permission android:name="com.hkw.assassins.permission.C2D_MESSAGE" android:protectionLevel="signature" />
 	<uses-permission android:name="com.hkw.assassins.permission.C2D_MESSAGE" /> 
-	
+	<uses-permission android:name="android.permission.GET_ACCOUNTS" />
 	<!-- App receives GCM messages. -->
 	<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 	<!-- GCM connects to Google Services. -->
@@ -39,7 +39,7 @@
             </intent-filter>
         </activity>
         
-        <receiver android:name="com.google.android.gcm.GCMBroadcastReceiver" android:permission="com.google.android.c2dm.permission.SEND" >
+        <receiver android:name="com.google.android.gcm.GCMMessageReceiver" android:permission="com.google.android.c2dm.permission.SEND" >
 		  <intent-filter>
 		    <action android:name="com.google.android.c2dm.intent.RECEIVE" />
 		    <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
