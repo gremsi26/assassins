@@ -17,6 +17,10 @@
         android:title="Share"
         android:orderInCategory="100"
         android:showAsAction="never" />
+    <item android:id="@+id/menu_clearname"
+        android:title="Clear Name"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
     <item android:id="@+id/menu_settings"
         android:title="@string/menu_settings"
         android:orderInCategory="100"

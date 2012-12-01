@@ -19,6 +19,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -45,6 +46,8 @@ public class MainActivity extends MapActivity implements
 	NfcAdapter nfcAdapter;
 	PendingIntent nfcPendingIntent;
 
+	SharedPreferences settings;
+
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
@@ -53,6 +56,7 @@ public class MainActivity extends MapActivity implements
 		final ActionBar actionBar = getActionBar();
 		actionBar.setDisplayShowTitleEnabled(true);
 
+		settings = getSharedPreferences("assassins_preferences", 0);
 		initMap();
 
 		// register user on our server
@@ -87,6 +91,14 @@ public class MainActivity extends MapActivity implements
 		nfcAdapter.setNdefPushMessageCallback(this, this);
 		// Register callback to listen for message-sent success
 		nfcAdapter.setOnNdefPushCompleteCallback(this, this);
+
+		String name = settings.getString("name", "");
+		if (name.equals("")) {
+
+			EditNameDialog editNameFragment = new EditNameDialog(settings);
+			editNameFragment.show(getFragmentManager(), "");
+
+		}
 
 	}
 
@@ -129,6 +141,9 @@ public class MainActivity extends MapActivity implements
 			targetinfoFragment.show(getFragmentManager(), "missiles");
 			return true;
 		case R.id.menu_settings:
+			return true;
+		case R.id.menu_clearname:
+			settings.edit().putString("name", "").commit();
 			return true;
 		case R.id.menu_share:
 			Intent sharingIntent = new Intent(
