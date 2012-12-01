@@ -1,48 +1,68 @@
 package com.hkw.assassins.asyctasks;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 public class RegisterUserOnServer extends AsyncTask<Void, Void, String> {
-	protected String getASCIIContentFromEntity(HttpEntity entity)
-			throws IllegalStateException, IOException {
-		InputStream in = entity.getContent();
-		StringBuffer out = new StringBuffer();
-		int n = 1;
-		while (n > 0) {
-			byte[] b = new byte[4096];
-			n = in.read(b);
-			if (n > 0)
-				out.append(new String(b, 0, n));
-		}
-		return out.toString();
-	}
 
 	@Override
 	protected String doInBackground(Void... params) {
-		HttpClient httpClient = new DefaultHttpClient();
-		HttpContext localContext = new BasicHttpContext();
+		StringBuilder builder = new StringBuilder();
+		HttpClient client = new DefaultHttpClient();
 		HttpGet httpGet = new HttpGet(
-				"http://www.cheesejedi.com/rest_services/get_big_cheese.php?puzzle=1");
-		String text = null;
+				"http://twitter.com/statuses/user_timeline/vogella.json");
 		try {
-			HttpResponse response = httpClient.execute(httpGet, localContext);
-			HttpEntity entity = response.getEntity();
-			text = "";// getASCIIContentFromEntity(entity);
-		} catch (Exception e) {
-			return e.getLocalizedMessage();
+			HttpResponse response = client.execute(httpGet);
+			StatusLine statusLine = response.getStatusLine();
+			int statusCode = statusLine.getStatusCode();
+			if (statusCode == 200) {
+				HttpEntity entity = response.getEntity();
+				InputStream content = entity.getContent();
+				BufferedReader reader = new BufferedReader(
+						new InputStreamReader(content));
+				String line;
+				while ((line = reader.readLine()) != null) {
+					builder.append(line);
+				}
+			} else {
+				Log.e(RegisterUserOnServer.class.toString(),
+						"Failed to download file");
+			}
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		return text;
+		return builder.toString();
+
+	}
+
+	public void writeJSON() {
+		JSONObject object = new JSONObject();
+		try {
+			object.put("name", "Jack Hack");
+			object.put("score", new Integer(200));
+			object.put("current", new Double(152.32));
+			object.put("nickname", "Hacker");
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		System.out.println(object);
 	}
 
 	protected void onPostExecute(String results) {
