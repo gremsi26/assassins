@@ -45,6 +45,7 @@ public class MainActivity extends MapActivity implements
 	private static final int MESSAGE_SENT = 1;
 	NfcAdapter nfcAdapter;
 	PendingIntent nfcPendingIntent;
+	boolean nfcEnabled = false;
 
 	SharedPreferences settings;
 
@@ -81,16 +82,25 @@ public class MainActivity extends MapActivity implements
 			Log.v(TAG, "Already registered");
 		}
 
+		// NfcManager manager = (NfcManager)
+		// getSystemService(Context.NFC_SERVICE);
+
 		// NFC
 		// Check for available NFC Adapter
 		nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-		nfcPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this,
-				this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
 
-		// Register Android Beam callback
-		nfcAdapter.setNdefPushMessageCallback(this, this);
-		// Register callback to listen for message-sent success
-		nfcAdapter.setOnNdefPushCompleteCallback(this, this);
+		if (nfcAdapter != null && nfcAdapter.isEnabled()) {
+			nfcEnabled = true;
+			nfcPendingIntent = PendingIntent.getActivity(this, 0, new Intent(
+					this, this.getClass())
+					.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+
+			// Register Android Beam callback
+			nfcAdapter.setNdefPushMessageCallback(this, this);
+			// Register callback to listen for message-sent success
+			nfcAdapter.setOnNdefPushCompleteCallback(this, this);
+
+		}
 
 		String name = settings.getString("name", "");
 		if (name.equals("")) {
@@ -174,18 +184,21 @@ public class MainActivity extends MapActivity implements
 
 	public void enableForegroundMode() {
 		Log.d(TAG, "enableForegroundMode");
-
-		IntentFilter tagDetected = new IntentFilter(
-				NfcAdapter.ACTION_TAG_DISCOVERED); // filter for all
-		IntentFilter[] writeTagFilters = new IntentFilter[] { tagDetected };
-		nfcAdapter.enableForegroundDispatch(this, nfcPendingIntent,
-				writeTagFilters, null);
+		if (nfcEnabled) {
+			IntentFilter tagDetected = new IntentFilter(
+					NfcAdapter.ACTION_TAG_DISCOVERED); // filter for all
+			IntentFilter[] writeTagFilters = new IntentFilter[] { tagDetected };
+			nfcAdapter.enableForegroundDispatch(this, nfcPendingIntent,
+					writeTagFilters, null);
+		}
 	}
 
 	public void disableForegroundMode() {
 		Log.d(TAG, "disableForegroundMode");
+		if (nfcEnabled) {
 
-		nfcAdapter.disableForegroundDispatch(this);
+			nfcAdapter.disableForegroundDispatch(this);
+		}
 	}
 
 	@Override
