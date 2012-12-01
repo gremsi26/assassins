@@ -1,8 +1,11 @@
 package com.hkw.assassins;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.ndeftools.Message;
 import org.ndeftools.Record;
 import org.ndeftools.wellknown.TextRecord;
@@ -10,6 +13,8 @@ import org.ndeftools.wellknown.TextRecord;
 import com.google.android.gcm.GCMRegistrar;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
+import com.hkw.assassins.asyctasks.GetUserFromServer;
+import com.hkw.assassins.asyctasks.RegisterUserOnServer;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -68,7 +73,6 @@ public class MainActivity extends MapActivity implements
 				String possibleEmail = account.name;
 			}
 		}
-		// TODO: run register user on server async task
 
 		// register for gcm
 		GCMRegistrar.checkDevice(this);
@@ -77,9 +81,11 @@ public class MainActivity extends MapActivity implements
 		if (regId.equals("")) {
 			Log.v(TAG, "Registering");
 			GCMRegistrar.register(this, "138142482844");
+			settings.edit().putString("user_gcmid", regId).commit();
 			// send registration id to server
 		} else {
-			Log.v(TAG, "Already registered");
+			Log.v(TAG, "Already registered: " + regId);
+			settings.edit().putString("user_gcmid", regId).commit();
 		}
 
 		// NfcManager manager = (NfcManager)
@@ -102,7 +108,7 @@ public class MainActivity extends MapActivity implements
 
 		}
 
-		String name = settings.getString("name", "");
+		String name = settings.getString("user_name", "");
 		if (name.equals("")) {
 
 			EditNameDialog editNameFragment = new EditNameDialog(settings);
@@ -153,7 +159,7 @@ public class MainActivity extends MapActivity implements
 		case R.id.menu_settings:
 			return true;
 		case R.id.menu_clearname:
-			settings.edit().putString("name", "").commit();
+			settings.edit().putString("user_name", "").commit();
 			return true;
 		case R.id.menu_share:
 			Intent sharingIntent = new Intent(
@@ -264,6 +270,43 @@ public class MainActivity extends MapActivity implements
 		super.onResume();
 
 		enableForegroundMode();
+
+		registerUser();
+
+	}
+
+	public void registerUser() {
+		Log.d(TAG, "REGISTERING THE USER!!");
+		String name = settings.getString("user_name", "");
+		if (!name.equals("")) {
+			GetUserFromServer gufs = new GetUserFromServer(settings, "default");
+			try {
+				String JSONString = gufs.execute(name).get();
+				Log.d(TAG, "JSONString: " + JSONString);
+				if (JSONString.equals("null")) {
+					Log.d(TAG, "Register the user!!");
+
+					RegisterUserOnServer ruos = new RegisterUserOnServer(
+							settings, "default");
+
+					ruos.execute(name, settings.getString("user_gcmid", ""), "");
+				} else {
+					Log.d(TAG, "User  found!!");
+					JSONObject jsonObject = new JSONObject(JSONString);
+
+				}
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
 	}
 
 	@Override

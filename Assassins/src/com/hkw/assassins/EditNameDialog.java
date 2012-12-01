@@ -51,9 +51,9 @@ public class EditNameDialog extends DialogFragment implements
 			// EditNameDialogListener activity = (EditNameDialogListener)
 			// getActivity();
 			// activity.onFinishEditDialog(mEditText.getText().toString());
-
-			settings.edit().putString("name", mEditText.getText().toString())
-					.commit();
+			String nameEntered = mEditText.getText().toString();
+			nameEntered = nameEntered.replace(" ", "_");
+			settings.edit().putString("user_name", nameEntered).commit();
 			this.dismiss();
 			return true;
 		}
