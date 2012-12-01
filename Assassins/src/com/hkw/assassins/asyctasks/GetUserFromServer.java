@@ -4,30 +4,28 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.util.Log;
 
-public class RegisterUserOnServer extends AsyncTask<String, Integer, String> {
+public class GetUserFromServer extends AsyncTask<String, Integer, String> {
 	String TAG = "GetUserFromServer";
 	SharedPreferences settings;
 	String function = "default";
 
-	public RegisterUserOnServer(SharedPreferences settings, String function) {
+	public GetUserFromServer(SharedPreferences settings, String function) {
 		this.settings = settings;
 		this.function = function;
 	}
@@ -36,20 +34,19 @@ public class RegisterUserOnServer extends AsyncTask<String, Integer, String> {
 	protected String doInBackground(String... params) {
 		StringBuilder builder = new StringBuilder();
 		HttpClient client = new DefaultHttpClient();
-		HttpPost httpPost = new HttpPost(
-				"http://assassinsgame.cloudapp.net/api/players");
-		httpPost.addHeader("Accept", "application/json");
+		Log.d(TAG,
+				TextUtils
+						.htmlEncode("http://assassinsgame.cloudapp.net/api/players?name="
+								+ params[0]));
+		HttpGet httpGet = new HttpGet(
+				TextUtils
+						.htmlEncode("http://assassinsgame.cloudapp.net/api/players?name="
+								+ params[0]));
 
-		ArrayList nameValuePairs = new ArrayList();
-		// this is where you add your data to the post method
-		nameValuePairs.add(new BasicNameValuePair("Name", params[0]));
-		nameValuePairs.add(new BasicNameValuePair("SecretCode", params[0]));
-		nameValuePairs.add(new BasicNameValuePair("GcmId", params[1]));
-		nameValuePairs.add(new BasicNameValuePair("TwitterHandle", params[2]));
+		httpGet.addHeader("Accept", "application/json");
 
 		try {
-			httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-			HttpResponse response = client.execute(httpPost);
+			HttpResponse response = client.execute(httpGet);
 
 			StatusLine statusLine = response.getStatusLine();
 			int statusCode = statusLine.getStatusCode();
@@ -64,7 +61,7 @@ public class RegisterUserOnServer extends AsyncTask<String, Integer, String> {
 					builder.append(line);
 				}
 			} else {
-				Log.e(RegisterUserOnServer.class.toString(),
+				Log.e(GetUserFromServer.class.toString(),
 						"Failed to download file");
 			}
 		} catch (ClientProtocolException e) {
