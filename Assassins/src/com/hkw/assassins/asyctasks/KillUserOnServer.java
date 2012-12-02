@@ -32,6 +32,7 @@ public class KillUserOnServer extends AsyncTask<String, Integer, String> {
 
 	@Override
 	protected String doInBackground(String... arg) {
+		Log.d(TAG, "Kill User ON Server");
 		StringBuilder builder = new StringBuilder();
 		HttpClient client = new DefaultHttpClient();
 		HttpPost httpPost = new HttpPost(
@@ -42,7 +43,7 @@ public class KillUserOnServer extends AsyncTask<String, Integer, String> {
 		// this is where you add your data to the post method
 		nameValuePairs.add(new BasicNameValuePair("MySecretCode", arg[0]));
 		nameValuePairs.add(new BasicNameValuePair("TargetSecretCode", arg[1]));
-		
+
 		try {
 			httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 			HttpResponse response = client.execute(httpPost);
