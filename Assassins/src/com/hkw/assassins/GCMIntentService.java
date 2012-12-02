@@ -49,12 +49,23 @@ public class GCMIntentService extends GCMBaseIntentService {
 			settings.edit().putString("target_name", targetname);
 			Log.d(TAG, "Target Name:" + targetname);
 
-			// TODO: get target location
 			GetUserFromServer gufs = new GetUserFromServer(settings, "");
 			try {
 				String JSONString = gufs.execute(targetname).get();
 				Log.d(TAG, "Target info RCVD");
 				JSONObject jsonObject = new JSONObject(JSONString);
+				settings.edit()
+						.putString("target_latitude",
+								jsonObject.getString("latitude")).commit();
+
+				settings.edit()
+						.putString("target_longitude",
+								jsonObject.getString("longitude")).commit();
+
+				settings.edit()
+						.putString("target_updatetime",
+								jsonObject.getString("LastLocationUpdate"))
+						.commit();
 
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block

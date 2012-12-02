@@ -18,6 +18,7 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 import com.hkw.assassins.asyctasks.GetUserFromServer;
+import com.hkw.assassins.asyctasks.KillUserOnServer;
 import com.hkw.assassins.asyctasks.RegisterUserOnServer;
 
 import android.accounts.Account;
@@ -57,7 +58,7 @@ public class MainActivity extends MapActivity implements
 	private LocationManager locationManager;
 	private GeoPoint userLocation;
 	private String provider;
-	 
+
 	private String TAG = "MainActivity";
 	private static final int MESSAGE_SENT = 1;
 	NfcAdapter nfcAdapter;
@@ -137,9 +138,9 @@ public class MainActivity extends MapActivity implements
 		mapView = (MapView) findViewById(R.id.mapView);
 
 		mapView.setBuiltInZoomControls(true);
-		//View zoomView = mapView.getZoomControls();
-		//mapView.displayZoomControls(true);
-		
+		// View zoomView = mapView.getZoomControls();
+		// mapView.displayZoomControls(true);
+
 		// Get the location manager
 	    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 	    // Define the criteria how to select the location provider -> use
@@ -163,12 +164,13 @@ public class MainActivity extends MapActivity implements
 	    GeoPoint point = userLocation;
 	    OverlayItem overlayItem = new OverlayItem(point, "Hola, Mundo!", "I'm in Mexico City!");
 
-	    itemizedOverlay.addOverlay(overlayItem);
-	    mapOverlays.add(itemizedOverlay);
-	    
-	    MapController mc = mapView.getController();
-	    mc.animateTo(point);
-	    mc.setZoom(19);
+		// Initialize the location fields
+		// if (location != null) {
+		// onLocationChanged(location);
+		// } else {
+		// userLocation = new GeoPoint(33776902, -84396530);
+		// }
+
 	    
 	    locationManager.requestLocationUpdates(provider,0,0,this);
 	}
@@ -198,12 +200,31 @@ public class MainActivity extends MapActivity implements
 		getMenuInflater().inflate(R.menu.activity_main, menu);
 		return true;
 	}
-	
+
 	@Override
 	public void onLocationChanged(Location location) {
-		int lat = (int) (location.getLatitude()*1e6);
-		int lng = (int) (location.getLongitude()*1e6);
-		userLocation = new GeoPoint(lat,lng);
+		int lat = (int) (location.getLatitude() * 1e6);
+		int lng = (int) (location.getLongitude() * 1e6);
+		userLocation = new GeoPoint(lat, lng);
+
+		List<Overlay> mapOverlays = mapView.getOverlays();
+		// mapOverlays.clear();
+		Drawable drawable = this.getResources().getDrawable(
+				R.drawable.targetmarker);
+		MapItemizedOverlay itemizedOverlay = new MapItemizedOverlay(drawable,
+				this);
+
+		GeoPoint point = userLocation;
+		OverlayItem overlayItem = new OverlayItem(point, "Hola, Mundo!",
+				"I'm in Mexico City!");
+
+		itemizedOverlay.addOverlay(overlayItem);
+		mapOverlays.add(itemizedOverlay);
+
+		MapController mc = mapView.getController();
+		mc.animateTo(point);
+
+		mc.setZoom(19);
 		
 		List<Overlay> mapOverlays = mapView.getOverlays();
 		mapOverlays.clear();
@@ -220,7 +241,7 @@ public class MainActivity extends MapActivity implements
 	    mc.animateTo(point);
 	    mc.setZoom(19);
 	}
-	
+
 	@Override
 	public void onProviderEnabled(String provider) {
 		Toast.makeText(this, "Enabled new provider " + provider,
@@ -233,7 +254,7 @@ public class MainActivity extends MapActivity implements
 		Toast.makeText(this, "Disabled provider " + provider,
 				Toast.LENGTH_SHORT).show();
 	}
-	
+
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		// TODO Auto-generated method stub
@@ -248,7 +269,7 @@ public class MainActivity extends MapActivity implements
 			playerslistFragment.show(getFragmentManager(), "missiles");
 			return true;
 		case R.id.menu_targetinfo:
-			DialogFragment targetinfoFragment = new TargetInfoDialog();
+			DialogFragment targetinfoFragment = new TargetInfoDialog(settings);
 			targetinfoFragment.show(getFragmentManager(), "missiles");
 			return true;
 		case R.id.menu_settings:
@@ -346,6 +367,7 @@ public class MainActivity extends MapActivity implements
 											+ ". payload: "
 											+ ((TextRecord) records.get(k))
 													.getText());
+							killUser(((TextRecord) records.get(k)).getText());
 						}
 					} catch (Exception e) {
 						Log.e(TAG, "Problem parsing message", e);
@@ -363,13 +385,22 @@ public class MainActivity extends MapActivity implements
 		Log.d(TAG, "onResume");
 
 		super.onResume();
-		
+
 		locationManager.requestLocationUpdates(provider, 400, 1, this);
-		
+
 		enableForegroundMode();
 
 		registerUser();
 
+	}
+
+	public void killUser(String targetSecretCode) {
+		Log.d(TAG, "Killing the user!");
+		String mySecretCode = settings.getString("user_secretcode", "");
+		if (!mySecretCode.equals("")) {
+			KillUserOnServer kuos = new KillUserOnServer(settings, "default");
+			kuos.execute(mySecretCode, targetSecretCode);
+		}
 	}
 
 	public void registerUser() {
@@ -390,6 +421,11 @@ public class MainActivity extends MapActivity implements
 				} else {
 					Log.d(TAG, "User  found!!");
 					JSONObject jsonObject = new JSONObject(JSONString);
+					settings.edit()
+							.putString("user_secretcode",
+									jsonObject.getString("SecretCode"))
+							.commit();
+
 					// TODO: stuff for the user
 				}
 			} catch (InterruptedException e) {
@@ -413,7 +449,7 @@ public class MainActivity extends MapActivity implements
 		super.onPause();
 
 		locationManager.removeUpdates(this);
-		
+
 		disableForegroundMode();
 	}
 
@@ -422,7 +458,7 @@ public class MainActivity extends MapActivity implements
 		Log.d(TAG, "createNdefMessage");
 
 		// create record to be pushed
-		TextRecord record = new TextRecord("This is my text record");
+		TextRecord record = new TextRecord(settings.getString("user_name", ""));
 		NdefMessage nmsg = new NdefMessage(
 				new NdefRecord[] { record.getNdefRecord() });
 		// encode one or more record to NdefMessage
