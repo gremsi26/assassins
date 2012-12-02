@@ -35,8 +35,7 @@ public class KillDialog extends DialogFragment {
 				Intent sharingIntent = new Intent(
 						android.content.Intent.ACTION_SEND);
 				sharingIntent.setType("text/plain");
-				String shareBody = "I've just killed: "
-						+ settings.getString("target_name", "")
+				String shareBody = "I've just killed: " + target_name
 						+ " in Assassins game!";
 				sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
 						"Assassins game is awesome!");
