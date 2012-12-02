@@ -49,6 +49,7 @@ import android.util.Log;
 import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends MapActivity implements
@@ -57,7 +58,7 @@ public class MainActivity extends MapActivity implements
 	private MapView mapView;
 	private LocationManager locationManager;
 	private String provider;
-	//private GeoPoint userLocation;
+	// private GeoPoint userLocation;
 
 	private String TAG = "MainActivity";
 	private static final int MESSAGE_SENT = 1;
@@ -66,6 +67,7 @@ public class MainActivity extends MapActivity implements
 	boolean nfcEnabled = false;
 
 	SharedPreferences settings;
+	TextView targetInfo;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -78,6 +80,7 @@ public class MainActivity extends MapActivity implements
 		settings = getSharedPreferences("assassins_preferences", 0);
 		initMap();
 
+		targetInfo = (TextView) findViewById(R.id.targetname);
 		// register user on our server
 		Pattern emailPattern = Patterns.EMAIL_ADDRESS; // API level 8+
 		Account[] accounts = AccountManager.get(this).getAccounts();
@@ -143,42 +146,48 @@ public class MainActivity extends MapActivity implements
 
 		/* GETTING CURRENT USER LOCATION */
 		// Get the location manager
-	    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-	    // Define the criteria how to select the location provider -> use
-	    Criteria criteria = new Criteria();
-	    provider = locationManager.getBestProvider(criteria, false);
-	    locationManager.requestSingleUpdate(provider,this,null);
-	    Location location = locationManager.getLastKnownLocation(provider);
-	    
-	    // Initialize the location fields
-	    if (location != null) {
-	      onLocationChanged(location);
-	    } 
-	    //else {
-	    //  userLocation = new GeoPoint(33776902,-84396530);
-	    //}
-		/* END GETTING CURRENT USER LOCATION */
-	    
-		List<Overlay> mapOverlays = mapView.getOverlays();
-		//mapOverlays.clear();
-	    Drawable drawable = this.getResources().getDrawable(R.drawable.targetmarker);
-	    MapItemizedOverlay itemizedOverlay = new MapItemizedOverlay(drawable, this);
-	    
-	    double targetLat = Double.parseDouble(settings.getString("target_latitude", "33.776902"));
-	    double targetLng = Double.parseDouble(settings.getString("target_longitude", "-84.396530"));
-	    int targetLatE6 = (int)(targetLat * 1e6);
-	    int targetLngE6 = (int)(targetLng * 1e6);
-	    
-	    GeoPoint targetLocation = new GeoPoint(targetLatE6,targetLngE6);
-	    String targetName = settings.getString("target_name", "Your Unnamed Target");
-	    OverlayItem overlayItem = new OverlayItem(targetLocation, targetName, "was last spotted here!");
+		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		// Define the criteria how to select the location provider -> use
+		Criteria criteria = new Criteria();
+		provider = locationManager.getBestProvider(criteria, false);
+		locationManager.requestSingleUpdate(provider, this, null);
+		Location location = locationManager.getLastKnownLocation(provider);
 
-	    itemizedOverlay.addOverlay(overlayItem);
-	    mapOverlays.add(itemizedOverlay);
-	    
-	    MapController mc = mapView.getController();
-	    mc.animateTo(targetLocation);
-	    mc.setZoom(19);
+		// Initialize the location fields
+		if (location != null) {
+			onLocationChanged(location);
+		}
+		// else {
+		// userLocation = new GeoPoint(33776902,-84396530);
+		// }
+		/* END GETTING CURRENT USER LOCATION */
+
+		List<Overlay> mapOverlays = mapView.getOverlays();
+		// mapOverlays.clear();
+		Drawable drawable = this.getResources().getDrawable(
+				R.drawable.targetmarker);
+		MapItemizedOverlay itemizedOverlay = new MapItemizedOverlay(drawable,
+				this);
+
+		double targetLat = Double.parseDouble(settings.getString(
+				"target_latitude", "33.776902"));
+		double targetLng = Double.parseDouble(settings.getString(
+				"target_longitude", "-84.396530"));
+		int targetLatE6 = (int) (targetLat * 1e6);
+		int targetLngE6 = (int) (targetLng * 1e6);
+
+		GeoPoint targetLocation = new GeoPoint(targetLatE6, targetLngE6);
+		String targetName = settings.getString("target_name",
+				"Your Unnamed Target");
+		OverlayItem overlayItem = new OverlayItem(targetLocation, targetName,
+				"was last spotted here!");
+
+		itemizedOverlay.addOverlay(overlayItem);
+		mapOverlays.add(itemizedOverlay);
+
+		MapController mc = mapView.getController();
+		mc.animateTo(targetLocation);
+		mc.setZoom(19);
 	}
 
 	@Override
@@ -203,7 +212,7 @@ public class MainActivity extends MapActivity implements
 		double lng = location.getLongitude();
 		int latE6 = (int) (lat * 1e6);
 		int lngE6 = (int) (lng * 1e6);
-		//userLocation = new GeoPoint(latE6, lngE6);
+		// userLocation = new GeoPoint(latE6, lngE6);
 		settings.edit().putString("user_latitude", String.valueOf(lat));
 		settings.edit().putString("user_longitude", String.valueOf(lng));
 	}
@@ -335,7 +344,12 @@ public class MainActivity extends MapActivity implements
 											+ ". payload: "
 											+ ((TextRecord) records.get(k))
 													.getText());
-							killUser(((TextRecord) records.get(k)).getText());
+							String targetName = ((TextRecord) records.get(k))
+									.getText();
+							DialogFragment killFragment = new KillDialog(
+									settings, targetName);
+							killUser(targetName);
+							killFragment.show(getFragmentManager(), "missiles");
 						}
 					} catch (Exception e) {
 						Log.e(TAG, "Problem parsing message", e);
@@ -370,6 +384,7 @@ public class MainActivity extends MapActivity implements
 			KillUserOnServer kuos = new KillUserOnServer(settings, "default");
 			kuos.execute(mySecretCode, targetSecretCode);
 		}
+
 	}
 
 	public void registerUser() {
@@ -392,19 +407,35 @@ public class MainActivity extends MapActivity implements
 					String JSONString2 = ruos.execute(name,
 							settings.getString("user_gcmid", ""), "").get();
 					JSONObject jsonObject2 = new JSONObject(JSONString2);
-					settings.edit()
-							.putString("target_name",
-									jsonObject2.getString("TargetName"))
-							.commit();
+					if (jsonObject2.getString("IsAlive").equals("false")) {
+
+						settings.edit()
+								.putString("target_name", "You are dead!")
+								.commit();
+					} else {
+						settings.edit()
+								.putString("target_name",
+										jsonObject2.getString("TargetName"))
+								.commit();
+
+					}
 
 				} else {
 					Log.d(TAG, "User  found!!");
 					JSONObject jsonObject = new JSONObject(JSONString);
 
-					settings.edit()
-							.putString("target_name",
-									jsonObject.getString("TargetName"))
-							.commit();
+					if (jsonObject.getString("IsAlive").equals("false")) {
+
+						settings.edit()
+								.putString("target_name", "You are dead!")
+								.commit();
+					} else {
+						settings.edit()
+								.putString("target_name",
+										jsonObject.getString("TargetName"))
+								.commit();
+
+					}
 
 					// TODO: stuff for the user
 				}
@@ -441,6 +472,8 @@ public class MainActivity extends MapActivity implements
 		TextRecord record = new TextRecord(settings.getString("user_name", ""));
 		NdefMessage nmsg = new NdefMessage(
 				new NdefRecord[] { record.getNdefRecord() });
+		settings.edit().putString("target_name", "You are dead!").commit();
+
 		// encode one or more record to NdefMessage
 		return nmsg;
 	}
