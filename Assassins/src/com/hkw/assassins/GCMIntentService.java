@@ -1,12 +1,19 @@
 package com.hkw.assassins;
 
+import java.util.concurrent.ExecutionException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.google.android.gcm.GCMBaseIntentService;
+import com.hkw.assassins.asyctasks.GetUserFromServer;
 
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 public class GCMIntentService extends GCMBaseIntentService {
@@ -27,11 +34,51 @@ public class GCMIntentService extends GCMBaseIntentService {
 
 	public void onMessage(Context context, Intent intent) {
 		Log.i(TAG, "Received message");
-		String message = intent.getExtras().getString("alert");
-		Log.i(TAG, "new message= " + message);
+		String alert = intent.getExtras().getString("alert");
+		String function = intent.getExtras().getString("function");
+		Log.i(TAG, "function: " + function + " alert: " + alert);
 
 		// notifies user
-		// generateNotification(context, message);
+		generateNotification(context, alert);
+
+		SharedPreferences settings = getSharedPreferences(
+				"assassins_preferences", 0);
+
+		if (function.equals("gamestart") || function.equals("newtarget")) {
+			String targetname = intent.getExtras().getString("targetname");
+			settings.edit().putString("target_name", targetname);
+			Log.d(TAG, "Target Name:" + targetname);
+
+			// TODO: get target location
+			GetUserFromServer gufs = new GetUserFromServer(settings, "");
+			try {
+				String JSONString = gufs.execute(targetname).get();
+				Log.d(TAG, "Target info RCVD");
+				JSONObject jsonObject = new JSONObject(JSONString);
+
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		} else if (function.equals("targetupdate")) {
+			String latitude = intent.getExtras().getString("latitude");
+			settings.edit().putString("target_latitude", latitude);
+
+			String longitude = intent.getExtras().getString("longitude");
+			settings.edit().putString("target_longitude", longitude);
+
+			Log.d(TAG, "Latitude: " + latitude + " Longitude:" + longitude);
+
+		} else if (function.equals("gameend")) {
+
+		}
 
 	}
 

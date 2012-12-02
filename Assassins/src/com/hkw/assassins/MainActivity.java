@@ -13,11 +13,9 @@ import org.ndeftools.wellknown.TextRecord;
 import com.google.android.gcm.GCMRegistrar;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
-import com.hkw.assassins.asyctasks.GetUserFromServer;
 import com.google.android.maps.Overlay;
-import com.google.android.maps.OverlayItem;
+import com.hkw.assassins.asyctasks.GetUserFromServer;
 import com.hkw.assassins.asyctasks.RegisterUserOnServer;
 
 import android.accounts.Account;
@@ -48,7 +46,6 @@ import android.util.Log;
 import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 public class MainActivity extends MapActivity implements
@@ -135,7 +132,8 @@ public class MainActivity extends MapActivity implements
 	 * Initialise the map and adds the zoomcontrols to the LinearLayout.
 	 */
 	private void initMap() {
-		mapView = (MapView) findViewById(R.id.mapView);
+		if (false) {
+			mapView = (MapView) findViewById(R.id.mapView);
 
 		mapView.setBuiltInZoomControls(true);
 		//View zoomView = mapView.getZoomControls();
@@ -171,15 +169,15 @@ public class MainActivity extends MapActivity implements
 	    mc.animateTo(point);
 	    mc.setZoom(19);
 	}
-	
-	private void updateTargetLocation(){
-		
+
+	private void updateTargetLocation() {
+
 	}
-	
-	private void updateUserLocation(){
-//		Geo
-//		settings.edit().putString("user_latitude", userLatitude).commit();
-//		settings.edit().putString("user_longitude", userLongitude).commit();
+
+	private void updateUserLocation() {
+		// Geo
+		// settings.edit().putString("user_latitude", userLatitude).commit();
+		// settings.edit().putString("user_longitude", userLongitude).commit();
 	}
 
 	@Override
@@ -252,8 +250,8 @@ public class MainActivity extends MapActivity implements
 			startActivity(Intent.createChooser(sharingIntent, "Share via"));
 			return true;
 		case R.id.menu_startgame:
-			DialogFragment startgameFragment = new StartGameDialog();
-			startgameFragment.show(getFragmentManager(), "missiles");
+			DialogFragment startgameFragment = new StartGameDialog(settings);
+			startgameFragment.show(getFragmentManager(), "");
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -374,7 +372,7 @@ public class MainActivity extends MapActivity implements
 				} else {
 					Log.d(TAG, "User  found!!");
 					JSONObject jsonObject = new JSONObject(JSONString);
-
+					// TODO: stuff for the user
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
