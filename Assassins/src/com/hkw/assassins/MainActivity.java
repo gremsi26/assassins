@@ -1,6 +1,8 @@
 package com.hkw.assassins;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
@@ -58,6 +60,7 @@ public class MainActivity extends MapActivity implements
 	private LocationManager locationManager;
 	private String provider;
 	//private GeoPoint userLocation;
+	private Timer timer = new Timer();
 
 	private String TAG = "MainActivity";
 	private static final int MESSAGE_SENT = 1;
@@ -129,6 +132,8 @@ public class MainActivity extends MapActivity implements
 
 		}
 
+		timer = new Timer();
+        timer.schedule(new taskUpdateTarget(), 0, 10000);
 	}
 
 	/**
@@ -159,8 +164,12 @@ public class MainActivity extends MapActivity implements
 	    //}
 		/* END GETTING CURRENT USER LOCATION */
 	    
+		updateTargetLocation();
+	}
+	
+	private void updateTargetLocation(){
 		List<Overlay> mapOverlays = mapView.getOverlays();
-		//mapOverlays.clear();
+		mapOverlays.clear();
 	    Drawable drawable = this.getResources().getDrawable(R.drawable.targetmarker);
 	    MapItemizedOverlay itemizedOverlay = new MapItemizedOverlay(drawable, this);
 	    
@@ -459,4 +468,18 @@ public class MainActivity extends MapActivity implements
 		vibe.vibrate(500);
 	}
 
+	//tells activity to run on ui thread
+	   class taskUpdateTarget extends TimerTask {
+
+	        @Override
+	        public void run() {
+	            MainActivity.this.runOnUiThread(new Runnable() {
+
+	                @Override
+	                public void run() {
+	                   updateTargetLocation();
+	                }
+	            });
+	        }
+	   };
 }

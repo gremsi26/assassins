@@ -46,7 +46,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 
 		if (function.equals("gamestart") || function.equals("newtarget")) {
 			String targetname = intent.getExtras().getString("targetname");
-			settings.edit().putString("target_name", targetname);
+			settings.edit().putString("target_name", targetname).commit();
 			Log.d(TAG, "Target Name:" + targetname);
 
 			GetUserFromServer gufs = new GetUserFromServer(settings, "");
@@ -80,10 +80,10 @@ public class GCMIntentService extends GCMBaseIntentService {
 
 		} else if (function.equals("targetupdate")) {
 			String latitude = intent.getExtras().getString("latitude");
-			settings.edit().putString("target_latitude", latitude);
+			settings.edit().putString("target_latitude", latitude).commit();
 
 			String longitude = intent.getExtras().getString("longitude");
-			settings.edit().putString("target_longitude", longitude);
+			settings.edit().putString("target_longitude", longitude).commit();
 
 			Log.d(TAG, "Latitude: " + latitude + " Longitude:" + longitude);
 
