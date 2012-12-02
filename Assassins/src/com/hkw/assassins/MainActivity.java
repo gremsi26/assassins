@@ -56,8 +56,8 @@ public class MainActivity extends MapActivity implements
 
 	private MapView mapView;
 	private LocationManager locationManager;
-	private GeoPoint userLocation;
 	private String provider;
+	//private GeoPoint userLocation;
 
 	private String TAG = "MainActivity";
 	private static final int MESSAGE_SENT = 1;
@@ -141,45 +141,44 @@ public class MainActivity extends MapActivity implements
 		// View zoomView = mapView.getZoomControls();
 		// mapView.displayZoomControls(true);
 
+		/* GETTING CURRENT USER LOCATION */
 		// Get the location manager
 	    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 	    // Define the criteria how to select the location provider -> use
-	    // default
 	    Criteria criteria = new Criteria();
-	    locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER,this,null);
-	    Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+	    provider = locationManager.getBestProvider(criteria, false);
+	    locationManager.requestSingleUpdate(provider,this,null);
+	    Location location = locationManager.getLastKnownLocation(provider);
 	    
 	    // Initialize the location fields
 	    if (location != null) {
 	      onLocationChanged(location);
-	    } else {
-	      userLocation = new GeoPoint(33776902,-84396530);
-	    }
-		
+	    } 
+	    //else {
+	    //  userLocation = new GeoPoint(33776902,-84396530);
+	    //}
+		/* END GETTING CURRENT USER LOCATION */
+	    
 		List<Overlay> mapOverlays = mapView.getOverlays();
 		//mapOverlays.clear();
 	    Drawable drawable = this.getResources().getDrawable(R.drawable.targetmarker);
 	    MapItemizedOverlay itemizedOverlay = new MapItemizedOverlay(drawable, this);
 	    
-	    GeoPoint point = userLocation;
-	    OverlayItem overlayItem = new OverlayItem(point, "Hola, Mundo!", "I'm in Mexico City!");
+	    double targetLat = Double.parseDouble(settings.getString("target_latitude", "33.776902"));
+	    double targetLng = Double.parseDouble(settings.getString("target_longitude", "-84.396530"));
+	    int targetLatE6 = (int)(targetLat * 1e6);
+	    int targetLngE6 = (int)(targetLng * 1e6);
+	    
+	    GeoPoint targetLocation = new GeoPoint(targetLatE6,targetLngE6);
+	    String targetName = settings.getString("target_name", "Your Unnamed Target");
+	    OverlayItem overlayItem = new OverlayItem(targetLocation, targetName, "was last spotted here!");
 
-		// Initialize the location fields
-		// if (location != null) {
-		// onLocationChanged(location);
-		// } else {
-		// userLocation = new GeoPoint(33776902, -84396530);
-		// }
-	}
-
-	private void updateTargetLocation() {
-
-	}
-
-	private void updateUserLocation() {
-		// Geo
-		// settings.edit().putString("user_latitude", userLatitude).commit();
-		// settings.edit().putString("user_longitude", userLongitude).commit();
+	    itemizedOverlay.addOverlay(overlayItem);
+	    mapOverlays.add(itemizedOverlay);
+	    
+	    MapController mc = mapView.getController();
+	    mc.animateTo(targetLocation);
+	    mc.setZoom(19);
 	}
 
 	@Override
@@ -200,24 +199,13 @@ public class MainActivity extends MapActivity implements
 
 	@Override
 	public void onLocationChanged(Location location) {
-		int lat = (int) (location.getLatitude() * 1e6);
-		int lng = (int) (location.getLongitude() * 1e6);
-		userLocation = new GeoPoint(lat, lng);
-		
-		List<Overlay> mapOverlays = mapView.getOverlays();
-		mapOverlays.clear();
-	    Drawable drawable = this.getResources().getDrawable(R.drawable.targetmarker);
-	    MapItemizedOverlay itemizedOverlay = new MapItemizedOverlay(drawable, this);
-	    
-	    GeoPoint point = userLocation;
-	    OverlayItem overlayItem = new OverlayItem(point, "Hola, Mundo!", "I'm in Mexico City!");
-
-	    itemizedOverlay.addOverlay(overlayItem);
-	    mapOverlays.add(itemizedOverlay);
-	    
-	    MapController mc = mapView.getController();
-	    mc.animateTo(point);
-	    mc.setZoom(19);
+		double lat = location.getLatitude();
+		double lng = location.getLongitude();
+		int latE6 = (int) (lat * 1e6);
+		int lngE6 = (int) (lng * 1e6);
+		//userLocation = new GeoPoint(latE6, lngE6);
+		settings.edit().putString("user_latitude", String.valueOf(lat));
+		settings.edit().putString("user_longitude", String.valueOf(lng));
 	}
 
 	@Override
@@ -364,7 +352,7 @@ public class MainActivity extends MapActivity implements
 
 		super.onResume();
 
-		locationManager.requestLocationUpdates(provider, 400, 1, this);
+		locationManager.requestLocationUpdates(provider, 0, 0, this);
 
 		enableForegroundMode();
 
