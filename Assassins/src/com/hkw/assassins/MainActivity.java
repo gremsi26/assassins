@@ -13,8 +13,10 @@ import org.ndeftools.wellknown.TextRecord;
 import com.google.android.gcm.GCMRegistrar;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
+import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
+import com.google.android.maps.OverlayItem;
 import com.hkw.assassins.asyctasks.GetUserFromServer;
 import com.hkw.assassins.asyctasks.RegisterUserOnServer;
 
@@ -132,8 +134,7 @@ public class MainActivity extends MapActivity implements
 	 * Initialise the map and adds the zoomcontrols to the LinearLayout.
 	 */
 	private void initMap() {
-		if (false) {
-			mapView = (MapView) findViewById(R.id.mapView);
+		mapView = (MapView) findViewById(R.id.mapView);
 
 		mapView.setBuiltInZoomControls(true);
 		//View zoomView = mapView.getZoomControls();
@@ -144,7 +145,7 @@ public class MainActivity extends MapActivity implements
 	    // Define the criteria how to select the location provider -> use
 	    // default
 	    Criteria criteria = new Criteria();
-	    provider = locationManager.getBestProvider(criteria, false);
+	    provider = locationManager.getBestProvider(criteria, true);
 	    Location location = locationManager.getLastKnownLocation(provider);
 	    
 	    // Initialize the location fields
@@ -168,6 +169,8 @@ public class MainActivity extends MapActivity implements
 	    MapController mc = mapView.getController();
 	    mc.animateTo(point);
 	    mc.setZoom(19);
+	    
+	    locationManager.requestLocationUpdates(provider,0,0,this);
 	}
 
 	private void updateTargetLocation() {
@@ -201,6 +204,21 @@ public class MainActivity extends MapActivity implements
 		int lat = (int) (location.getLatitude()*1e6);
 		int lng = (int) (location.getLongitude()*1e6);
 		userLocation = new GeoPoint(lat,lng);
+		
+		List<Overlay> mapOverlays = mapView.getOverlays();
+		mapOverlays.clear();
+	    Drawable drawable = this.getResources().getDrawable(R.drawable.targetmarker);
+	    MapItemizedOverlay itemizedOverlay = new MapItemizedOverlay(drawable, this);
+	    
+	    GeoPoint point = userLocation;
+	    OverlayItem overlayItem = new OverlayItem(point, "Hola, Mundo!", "I'm in Mexico City!");
+
+	    itemizedOverlay.addOverlay(overlayItem);
+	    mapOverlays.add(itemizedOverlay);
+	    
+	    MapController mc = mapView.getController();
+	    mc.animateTo(point);
+	    mc.setZoom(19);
 	}
 	
 	@Override
