@@ -334,6 +334,8 @@ public class MainActivity extends MapActivity implements
 											+ ". payload: "
 											+ ((TextRecord) records.get(k))
 													.getText());
+							killUser(((TextRecord) records.get(k))
+													.getText());
 						}
 					} catch (Exception e) {
 						Log.e(TAG, "Problem parsing message", e);
