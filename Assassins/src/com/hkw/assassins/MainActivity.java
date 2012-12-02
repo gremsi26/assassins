@@ -51,6 +51,7 @@ import android.util.Log;
 import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends MapActivity implements
@@ -59,7 +60,7 @@ public class MainActivity extends MapActivity implements
 	private MapView mapView;
 	private LocationManager locationManager;
 	private String provider;
-	//private GeoPoint userLocation;
+	// private GeoPoint userLocation;
 	private Timer timer = new Timer();
 
 	private String TAG = "MainActivity";
@@ -69,6 +70,7 @@ public class MainActivity extends MapActivity implements
 	boolean nfcEnabled = false;
 
 	SharedPreferences settings;
+	TextView targetInfo;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -81,6 +83,7 @@ public class MainActivity extends MapActivity implements
 		settings = getSharedPreferences("assassins_preferences", 0);
 		initMap();
 
+		targetInfo = (TextView) findViewById(R.id.targetname);
 		// register user on our server
 		Pattern emailPattern = Patterns.EMAIL_ADDRESS; // API level 8+
 		Account[] accounts = AccountManager.get(this).getAccounts();
@@ -181,13 +184,6 @@ public class MainActivity extends MapActivity implements
 	    GeoPoint targetLocation = new GeoPoint(targetLatE6,targetLngE6);
 	    String targetName = settings.getString("target_name", "Your Unnamed Target");
 	    OverlayItem overlayItem = new OverlayItem(targetLocation, targetName, "was last spotted here!");
-
-	    itemizedOverlay.addOverlay(overlayItem);
-	    mapOverlays.add(itemizedOverlay);
-	    
-	    MapController mc = mapView.getController();
-	    mc.animateTo(targetLocation);
-	    mc.setZoom(19);
 	}
 
 	@Override
@@ -212,7 +208,7 @@ public class MainActivity extends MapActivity implements
 		double lng = location.getLongitude();
 		int latE6 = (int) (lat * 1e6);
 		int lngE6 = (int) (lng * 1e6);
-		//userLocation = new GeoPoint(latE6, lngE6);
+		// userLocation = new GeoPoint(latE6, lngE6);
 		settings.edit().putString("user_latitude", String.valueOf(lat));
 		settings.edit().putString("user_longitude", String.valueOf(lng));
 	}
@@ -342,7 +338,12 @@ public class MainActivity extends MapActivity implements
 											+ ". payload: "
 											+ ((TextRecord) records.get(k))
 													.getText());
-							killUser(((TextRecord) records.get(k)).getText());
+							String targetName = ((TextRecord) records.get(k))
+									.getText();
+							DialogFragment killFragment = new KillDialog(
+									settings, targetName);
+							killFragment.show(getFragmentManager(), "missiles");
+							killUser(targetName);
 						}
 					} catch (Exception e) {
 						Log.e(TAG, "Problem parsing message", e);
@@ -376,6 +377,7 @@ public class MainActivity extends MapActivity implements
 			KillUserOnServer kuos = new KillUserOnServer(settings, "default");
 			kuos.execute(mySecretCode, targetSecretCode);
 		}
+
 	}
 
 	public void registerUser() {
@@ -392,14 +394,37 @@ public class MainActivity extends MapActivity implements
 					RegisterUserOnServer ruos = new RegisterUserOnServer(
 							settings, "default");
 
-					ruos.execute(name, settings.getString("user_gcmid", ""), "");
+					String JSONString2 = ruos.execute(name,
+							settings.getString("user_gcmid", ""), "").get();
+					JSONObject jsonObject2 = new JSONObject(JSONString2);
+					if (jsonObject2.getString("IsAlive").equals("false")) {
+
+						settings.edit()
+								.putString("target_name", "You are dead!")
+								.commit();
+					} else {
+						settings.edit()
+								.putString("target_name",
+										jsonObject2.getString("TargetName"))
+								.commit();
+
+					}
+
 				} else {
 					Log.d(TAG, "User  found!!");
 					JSONObject jsonObject = new JSONObject(JSONString);
-					settings.edit()
-							.putString("user_secretcode",
-									jsonObject.getString("SecretCode"))
-							.commit();
+					if (jsonObject.getString("IsAlive").equals("false")) {
+
+						settings.edit()
+								.putString("target_name", "You are dead!")
+								.commit();
+					} else {
+						settings.edit()
+								.putString("target_name",
+										jsonObject.getString("TargetName"))
+								.commit();
+
+					}
 
 					// TODO: stuff for the user
 				}
@@ -436,6 +461,8 @@ public class MainActivity extends MapActivity implements
 		TextRecord record = new TextRecord(settings.getString("user_name", ""));
 		NdefMessage nmsg = new NdefMessage(
 				new NdefRecord[] { record.getNdefRecord() });
+		settings.edit().putString("target_name", "You are dead!").commit();
+
 		// encode one or more record to NdefMessage
 		return nmsg;
 	}
