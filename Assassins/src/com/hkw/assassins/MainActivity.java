@@ -240,7 +240,7 @@ public class MainActivity extends MapActivity implements
 			playerslistFragment.show(getFragmentManager(), "missiles");
 			return true;
 		case R.id.menu_targetinfo:
-			DialogFragment targetinfoFragment = new TargetInfoDialog();
+			DialogFragment targetinfoFragment = new TargetInfoDialog(settings);
 			targetinfoFragment.show(getFragmentManager(), "missiles");
 			return true;
 		case R.id.menu_settings:
@@ -338,8 +338,7 @@ public class MainActivity extends MapActivity implements
 											+ ". payload: "
 											+ ((TextRecord) records.get(k))
 													.getText());
-							killUser(((TextRecord) records.get(k))
-													.getText());
+							killUser(((TextRecord) records.get(k)).getText());
 						}
 					} catch (Exception e) {
 						Log.e(TAG, "Problem parsing message", e);
@@ -365,24 +364,16 @@ public class MainActivity extends MapActivity implements
 		registerUser();
 
 	}
-	
-	public void killUser(String targetSecretCode){
+
+	public void killUser(String targetSecretCode) {
 		Log.d(TAG, "Killing the user!");
 		String mySecretCode = settings.getString("user_secretcode", "");
-		if(!mySecretCode.equals("")){
+		if (!mySecretCode.equals("")) {
 			KillUserOnServer kuos = new KillUserOnServer(settings, "default");
-			try {
-				kuos.execute(mySecretCode, targetSecretCode);
-			}catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			kuos.execute(mySecretCode, targetSecretCode);
 		}
 	}
-	
+
 	public void registerUser() {
 		Log.d(TAG, "REGISTERING THE USER!!");
 		String name = settings.getString("user_name", "");
