@@ -16,9 +16,8 @@ import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
-import com.hkw.assassins.asyctasks.GetUserFromServer;
 import com.google.android.maps.Overlay;
-import com.google.android.maps.OverlayItem;
+import com.hkw.assassins.asyctasks.GetUserFromServer;
 import com.hkw.assassins.asyctasks.RegisterUserOnServer;
 
 import android.accounts.Account;
@@ -45,7 +44,6 @@ import android.util.Log;
 import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 public class MainActivity extends MapActivity implements
@@ -131,39 +129,43 @@ public class MainActivity extends MapActivity implements
 		mapView = (MapView) findViewById(R.id.mapView);
 
 		mapView.setBuiltInZoomControls(true);
-		//View zoomView = mapView.getZoomControls();
-		//mapView.displayZoomControls(true);
-		
-		List<Overlay> mapOverlays = mapView.getOverlays();
-		//mapOverlays.clear();
-	    Drawable drawable = this.getResources().getDrawable(R.drawable.targetmarker);
-	    MapItemizedOverlay itemizedOverlay = new MapItemizedOverlay(drawable, this);
-	    
-	    MyLocationOverlay myLocOverlay = new MyLocationOverlay(this, mapView);
-	    myLocOverlay.enableMyLocation();
-	    mapOverlays.add(myLocOverlay);
-	    GeoPoint myGeopoint = myLocOverlay.getMyLocation();
-	    mapView.getController().animateTo(myGeopoint);
-	    
-	    //GeoPoint point = new GeoPoint(33776902,-84396530);
-	    //OverlayItem overlayItem = new OverlayItem(point, "Hola, Mundo!", "I'm in Mexico City!");
+		// View zoomView = mapView.getZoomControls();
+		// mapView.displayZoomControls(true);
 
-	    //itemizedOverlay.addOverlay(overlayItem);
-	    //mapOverlays.add(itemizedOverlay);
-	    
-	    MapController mc = mapView.getController();
-	    //mc.animateTo(point);
-	    mc.setZoom(19);
+		List<Overlay> mapOverlays = mapView.getOverlays();
+		// mapOverlays.clear();
+		Drawable drawable = this.getResources().getDrawable(
+				R.drawable.targetmarker);
+		MapItemizedOverlay itemizedOverlay = new MapItemizedOverlay(drawable,
+				this);
+
+		MyLocationOverlay myLocOverlay = new MyLocationOverlay(this, mapView);
+		myLocOverlay.enableMyLocation();
+		mapOverlays.add(myLocOverlay);
+		GeoPoint myGeopoint = myLocOverlay.getMyLocation();
+		System.out.println(myGeopoint);
+		// mapView.getController().animateTo(myGeopoint);
+
+		// GeoPoint point = new GeoPoint(33776902,-84396530);
+		// OverlayItem overlayItem = new OverlayItem(point, "Hola, Mundo!",
+		// "I'm in Mexico City!");
+
+		// itemizedOverlay.addOverlay(overlayItem);
+		// mapOverlays.add(itemizedOverlay);
+
+		MapController mc = mapView.getController();
+		// mc.animateTo(point);
+		mc.setZoom(19);
 	}
-	
-	private void updateTargetLocation(){
-		
+
+	private void updateTargetLocation() {
+
 	}
-	
-	private void updateUserLocation(){
-//		Geo
-//		settings.edit().putString("user_latitude", userLatitude).commit();
-//		settings.edit().putString("user_longitude", userLongitude).commit();
+
+	private void updateUserLocation() {
+		// Geo
+		// settings.edit().putString("user_latitude", userLatitude).commit();
+		// settings.edit().putString("user_longitude", userLongitude).commit();
 	}
 
 	@Override
@@ -210,8 +212,8 @@ public class MainActivity extends MapActivity implements
 			startActivity(Intent.createChooser(sharingIntent, "Share via"));
 			return true;
 		case R.id.menu_startgame:
-			DialogFragment startgameFragment = new StartGameDialog();
-			startgameFragment.show(getFragmentManager(), "missiles");
+			DialogFragment startgameFragment = new StartGameDialog(settings);
+			startgameFragment.show(getFragmentManager(), "");
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);

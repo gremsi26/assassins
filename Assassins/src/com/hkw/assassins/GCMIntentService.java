@@ -28,7 +28,8 @@ public class GCMIntentService extends GCMBaseIntentService {
 	public void onMessage(Context context, Intent intent) {
 		Log.i(TAG, "Received message");
 		String message = intent.getExtras().getString("alert");
-		Log.i(TAG, "new message= " + message);
+		String function = intent.getExtras().getString("function");
+		Log.i(TAG, "function: " + function + " new message: " + message);
 
 		// notifies user
 		// generateNotification(context, message);
