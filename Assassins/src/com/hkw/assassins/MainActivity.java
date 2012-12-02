@@ -145,34 +145,19 @@ public class MainActivity extends MapActivity implements
 		// Define the criteria how to select the location provider -> use
 		// default
 		Criteria criteria = new Criteria();
-		provider = locationManager.getBestProvider(criteria, false);
-		Location location = locationManager.getLastKnownLocation(provider);
+		criteria.setAccuracy(Criteria.ACCURACY_FINE);
+		criteria.setBearingAccuracy(Criteria.ACCURACY_HIGH);
+		provider = locationManager.getBestProvider(criteria, true);
+		locationManager.requestLocationUpdates(provider, 0, 0, this);
+		// Location location = locationManager.getLastKnownLocation(provider);
 
 		// Initialize the location fields
-		if (location != null) {
-			onLocationChanged(location);
-		} else {
-			userLocation = new GeoPoint(33776902, -84396530);
-		}
+		// if (location != null) {
+		// onLocationChanged(location);
+		// } else {
+		// userLocation = new GeoPoint(33776902, -84396530);
+		// }
 
-		List<Overlay> mapOverlays = mapView.getOverlays();
-		// mapOverlays.clear();
-		Drawable drawable = this.getResources().getDrawable(
-				R.drawable.targetmarker);
-		MapItemizedOverlay itemizedOverlay = new MapItemizedOverlay(drawable,
-				this);
-
-		GeoPoint point = userLocation;
-		OverlayItem overlayItem = new OverlayItem(point, "Hola, Mundo!",
-				"I'm in Mexico City!");
-
-		itemizedOverlay.addOverlay(overlayItem);
-		mapOverlays.add(itemizedOverlay);
-
-		MapController mc = mapView.getController();
-		mc.animateTo(point);
-
-		mc.setZoom(19);
 	}
 
 	private void updateTargetLocation() {
@@ -206,6 +191,25 @@ public class MainActivity extends MapActivity implements
 		int lat = (int) (location.getLatitude() * 1e6);
 		int lng = (int) (location.getLongitude() * 1e6);
 		userLocation = new GeoPoint(lat, lng);
+
+		List<Overlay> mapOverlays = mapView.getOverlays();
+		// mapOverlays.clear();
+		Drawable drawable = this.getResources().getDrawable(
+				R.drawable.targetmarker);
+		MapItemizedOverlay itemizedOverlay = new MapItemizedOverlay(drawable,
+				this);
+
+		GeoPoint point = userLocation;
+		OverlayItem overlayItem = new OverlayItem(point, "Hola, Mundo!",
+				"I'm in Mexico City!");
+
+		itemizedOverlay.addOverlay(overlayItem);
+		mapOverlays.add(itemizedOverlay);
+
+		MapController mc = mapView.getController();
+		mc.animateTo(point);
+
+		mc.setZoom(19);
 	}
 
 	@Override
@@ -414,7 +418,7 @@ public class MainActivity extends MapActivity implements
 		Log.d(TAG, "createNdefMessage");
 
 		// create record to be pushed
-		TextRecord record = new TextRecord("This is my text record");
+		TextRecord record = new TextRecord(settings.getString("user_name", ""));
 		NdefMessage nmsg = new NdefMessage(
 				new NdefRecord[] { record.getNdefRecord() });
 		// encode one or more record to NdefMessage
