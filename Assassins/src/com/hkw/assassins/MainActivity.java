@@ -18,6 +18,7 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 import com.hkw.assassins.asyctasks.GetUserFromServer;
+import com.hkw.assassins.asyctasks.KillUserOnServer;
 import com.hkw.assassins.asyctasks.RegisterUserOnServer;
 
 import android.accounts.Account;
@@ -358,7 +359,24 @@ public class MainActivity extends MapActivity implements
 		registerUser();
 
 	}
-
+	
+	public void killUser(String targetSecretCode){
+		Log.d(TAG, "Killing the user!");
+		String mySecretCode = settings.getString("user_secretcode", "");
+		if(!mySecretCode.equals("")){
+			KillUserOnServer kuos = new KillUserOnServer(settings, "default");
+			try {
+				kuos.execute(mySecretCode, targetSecretCode);
+			}catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	public void registerUser() {
 		Log.d(TAG, "REGISTERING THE USER!!");
 		String name = settings.getString("user_name", "");
