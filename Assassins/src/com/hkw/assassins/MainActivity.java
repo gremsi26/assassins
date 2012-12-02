@@ -146,8 +146,8 @@ public class MainActivity extends MapActivity implements
 	    // Define the criteria how to select the location provider -> use
 	    // default
 	    Criteria criteria = new Criteria();
-	    provider = locationManager.getBestProvider(criteria, true);
-	    Location location = locationManager.getLastKnownLocation(provider);
+	    locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER,this,null);
+	    Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 	    
 	    // Initialize the location fields
 	    if (location != null) {
@@ -170,9 +170,6 @@ public class MainActivity extends MapActivity implements
 		// } else {
 		// userLocation = new GeoPoint(33776902, -84396530);
 		// }
-
-	    
-	    locationManager.requestLocationUpdates(provider,0,0,this);
 	}
 
 	private void updateTargetLocation() {
@@ -206,25 +203,6 @@ public class MainActivity extends MapActivity implements
 		int lat = (int) (location.getLatitude() * 1e6);
 		int lng = (int) (location.getLongitude() * 1e6);
 		userLocation = new GeoPoint(lat, lng);
-
-		List<Overlay> mapOverlays = mapView.getOverlays();
-		// mapOverlays.clear();
-		Drawable drawable = this.getResources().getDrawable(
-				R.drawable.targetmarker);
-		MapItemizedOverlay itemizedOverlay = new MapItemizedOverlay(drawable,
-				this);
-
-		GeoPoint point = userLocation;
-		OverlayItem overlayItem = new OverlayItem(point, "Hola, Mundo!",
-				"I'm in Mexico City!");
-
-		itemizedOverlay.addOverlay(overlayItem);
-		mapOverlays.add(itemizedOverlay);
-
-		MapController mc = mapView.getController();
-		mc.animateTo(point);
-
-		mc.setZoom(19);
 		
 		List<Overlay> mapOverlays = mapView.getOverlays();
 		mapOverlays.clear();
