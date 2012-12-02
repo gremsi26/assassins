@@ -132,7 +132,7 @@ public class MainActivity extends MapActivity implements
 	}
 
 	/**
-	 * Initialise the map and adds the zoomcontrols to the LinearLayout.
+	 * Initialise the map and adds the zoom controls to the LinearLayout.
 	 */
 	private void initMap() {
 		mapView = (MapView) findViewById(R.id.mapView);
@@ -147,7 +147,10 @@ public class MainActivity extends MapActivity implements
 		// default
 		Criteria criteria = new Criteria();
 		provider = locationManager.getBestProvider(criteria, true);
-		Location location = locationManager.getLastKnownLocation(provider);
+		locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER,
+				this, null);
+		Location location = locationManager
+				.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
 		// Initialize the location fields
 		if (location != null) {
@@ -173,8 +176,6 @@ public class MainActivity extends MapActivity implements
 		// } else {
 		// userLocation = new GeoPoint(33776902, -84396530);
 		// }
-
-		locationManager.requestLocationUpdates(provider, 0, 0, this);
 	}
 
 	private void updateTargetLocation() {
@@ -255,6 +256,8 @@ public class MainActivity extends MapActivity implements
 			playerslistFragment.show(getFragmentManager(), "missiles");
 			return true;
 		case R.id.menu_targetinfo:
+			Log.d(TAG, "testing!!");
+			Log.d(TAG, "TARGET NAME: " + settings.getString("target_name", ""));
 			DialogFragment targetinfoFragment = new TargetInfoDialog(settings);
 			targetinfoFragment.show(getFragmentManager(), "missiles");
 			return true;
@@ -372,7 +375,8 @@ public class MainActivity extends MapActivity implements
 
 		super.onResume();
 
-		locationManager.requestLocationUpdates(provider, 400, 1, this);
+		locationManager.requestLocationUpdates(
+				LocationManager.NETWORK_PROVIDER, 0, 0, this);
 
 		enableForegroundMode();
 
@@ -383,6 +387,7 @@ public class MainActivity extends MapActivity implements
 	public void killUser(String targetSecretCode) {
 		Log.d(TAG, "Killing the user!");
 		String mySecretCode = settings.getString("user_secretcode", "");
+		Log.d(TAG, mySecretCode);
 		if (!mySecretCode.equals("")) {
 			KillUserOnServer kuos = new KillUserOnServer(settings, "default");
 			kuos.execute(mySecretCode, targetSecretCode);
@@ -390,8 +395,11 @@ public class MainActivity extends MapActivity implements
 	}
 
 	public void registerUser() {
+
 		Log.d(TAG, "Checking to see if the user is registered");
 		String name = settings.getString("user_name", "");
+
+		settings.edit().putString("user_secretcode", name).commit();
 		if (!name.equals("")) {
 			GetUserFromServer gufs = new GetUserFromServer(settings, "default");
 			try {
@@ -403,13 +411,21 @@ public class MainActivity extends MapActivity implements
 					RegisterUserOnServer ruos = new RegisterUserOnServer(
 							settings, "default");
 
-					ruos.execute(name, settings.getString("user_gcmid", ""), "");
+					String JSONString2 = ruos.execute(name,
+							settings.getString("user_gcmid", ""), "").get();
+					JSONObject jsonObject2 = new JSONObject(JSONString2);
+					settings.edit()
+							.putString("target_name",
+									jsonObject2.getString("TargetName"))
+							.commit();
+
 				} else {
 					Log.d(TAG, "User  found!!");
 					JSONObject jsonObject = new JSONObject(JSONString);
+
 					settings.edit()
-							.putString("user_secretcode",
-									jsonObject.getString("SecretCode"))
+							.putString("target_name",
+									jsonObject.getString("TargetName"))
 							.commit();
 
 					// TODO: stuff for the user
