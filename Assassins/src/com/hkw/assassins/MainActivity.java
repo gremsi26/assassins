@@ -13,7 +13,6 @@ import org.ndeftools.wellknown.TextRecord;
 import com.google.android.gcm.GCMRegistrar;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
@@ -126,36 +125,39 @@ public class MainActivity extends MapActivity implements
 	 * Initialise the map and adds the zoomcontrols to the LinearLayout.
 	 */
 	private void initMap() {
-		mapView = (MapView) findViewById(R.id.mapView);
+		if (false) {
+			mapView = (MapView) findViewById(R.id.mapView);
 
-		mapView.setBuiltInZoomControls(true);
-		// View zoomView = mapView.getZoomControls();
-		// mapView.displayZoomControls(true);
+			mapView.setBuiltInZoomControls(true);
+			// View zoomView = mapView.getZoomControls();
+			// mapView.displayZoomControls(true);
 
-		List<Overlay> mapOverlays = mapView.getOverlays();
-		// mapOverlays.clear();
-		Drawable drawable = this.getResources().getDrawable(
-				R.drawable.targetmarker);
-		MapItemizedOverlay itemizedOverlay = new MapItemizedOverlay(drawable,
-				this);
+			List<Overlay> mapOverlays = mapView.getOverlays();
+			// mapOverlays.clear();
+			Drawable drawable = this.getResources().getDrawable(
+					R.drawable.targetmarker);
+			MapItemizedOverlay itemizedOverlay = new MapItemizedOverlay(
+					drawable, this);
 
-		MyLocationOverlay myLocOverlay = new MyLocationOverlay(this, mapView);
-		myLocOverlay.enableMyLocation();
-		mapOverlays.add(myLocOverlay);
-		GeoPoint myGeopoint = myLocOverlay.getMyLocation();
-		System.out.println(myGeopoint);
-		// mapView.getController().animateTo(myGeopoint);
+			MyLocationOverlay myLocOverlay = new MyLocationOverlay(this,
+					mapView);
+			myLocOverlay.enableMyLocation();
+			mapOverlays.add(myLocOverlay);
+			GeoPoint myGeopoint = myLocOverlay.getMyLocation();
+			System.out.println(myGeopoint);
+			// mapView.getController().animateTo(myGeopoint);
 
-		// GeoPoint point = new GeoPoint(33776902,-84396530);
-		// OverlayItem overlayItem = new OverlayItem(point, "Hola, Mundo!",
-		// "I'm in Mexico City!");
+			// GeoPoint point = new GeoPoint(33776902,-84396530);
+			// OverlayItem overlayItem = new OverlayItem(point, "Hola, Mundo!",
+			// "I'm in Mexico City!");
 
-		// itemizedOverlay.addOverlay(overlayItem);
-		// mapOverlays.add(itemizedOverlay);
+			// itemizedOverlay.addOverlay(overlayItem);
+			// mapOverlays.add(itemizedOverlay);
 
-		MapController mc = mapView.getController();
-		// mc.animateTo(point);
-		mc.setZoom(19);
+			// MapController mc = mapView.getController();
+			// mc.animateTo(point);
+			// mc.setZoom(19);
+		}
 	}
 
 	private void updateTargetLocation() {
@@ -332,7 +334,7 @@ public class MainActivity extends MapActivity implements
 				} else {
 					Log.d(TAG, "User  found!!");
 					JSONObject jsonObject = new JSONObject(JSONString);
-
+					// TODO: stuff for the user
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
