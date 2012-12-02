@@ -348,8 +348,8 @@ public class MainActivity extends MapActivity implements
 									.getText();
 							DialogFragment killFragment = new KillDialog(
 									settings, targetName);
-							killUser(targetName);
 							killFragment.show(getFragmentManager(), "missiles");
+							killUser(targetName);
 						}
 					} catch (Exception e) {
 						Log.e(TAG, "Problem parsing message", e);
