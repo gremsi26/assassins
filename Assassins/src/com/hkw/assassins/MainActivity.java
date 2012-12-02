@@ -13,8 +13,10 @@ import org.ndeftools.wellknown.TextRecord;
 import com.google.android.gcm.GCMRegistrar;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
+import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
+import com.google.android.maps.OverlayItem;
 import com.hkw.assassins.asyctasks.GetUserFromServer;
 import com.hkw.assassins.asyctasks.RegisterUserOnServer;
 
@@ -55,7 +57,7 @@ public class MainActivity extends MapActivity implements
 	private LocationManager locationManager;
 	private GeoPoint userLocation;
 	private String provider;
-	 
+
 	private String TAG = "MainActivity";
 	private static final int MESSAGE_SENT = 1;
 	NfcAdapter nfcAdapter;
@@ -132,42 +134,45 @@ public class MainActivity extends MapActivity implements
 	 * Initialise the map and adds the zoomcontrols to the LinearLayout.
 	 */
 	private void initMap() {
-		if (false) {
-			mapView = (MapView) findViewById(R.id.mapView);
+		mapView = (MapView) findViewById(R.id.mapView);
 
 		mapView.setBuiltInZoomControls(true);
-		//View zoomView = mapView.getZoomControls();
-		//mapView.displayZoomControls(true);
-		
-		// Get the location manager
-	    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-	    // Define the criteria how to select the location provider -> use
-	    // default
-	    Criteria criteria = new Criteria();
-	    provider = locationManager.getBestProvider(criteria, false);
-	    Location location = locationManager.getLastKnownLocation(provider);
-	    
-	    // Initialize the location fields
-	    if (location != null) {
-	      onLocationChanged(location);
-	    } else {
-	      userLocation = new GeoPoint(33776902,-84396530);
-	    }
-		
-		List<Overlay> mapOverlays = mapView.getOverlays();
-		//mapOverlays.clear();
-	    Drawable drawable = this.getResources().getDrawable(R.drawable.targetmarker);
-	    MapItemizedOverlay itemizedOverlay = new MapItemizedOverlay(drawable, this);
-	    
-	    GeoPoint point = userLocation;
-	    OverlayItem overlayItem = new OverlayItem(point, "Hola, Mundo!", "I'm in Mexico City!");
+		// View zoomView = mapView.getZoomControls();
+		// mapView.displayZoomControls(true);
 
-	    itemizedOverlay.addOverlay(overlayItem);
-	    mapOverlays.add(itemizedOverlay);
-	    
-	    MapController mc = mapView.getController();
-	    mc.animateTo(point);
-	    mc.setZoom(19);
+		// Get the location manager
+		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		// Define the criteria how to select the location provider -> use
+		// default
+		Criteria criteria = new Criteria();
+		provider = locationManager.getBestProvider(criteria, false);
+		Location location = locationManager.getLastKnownLocation(provider);
+
+		// Initialize the location fields
+		if (location != null) {
+			onLocationChanged(location);
+		} else {
+			userLocation = new GeoPoint(33776902, -84396530);
+		}
+
+		List<Overlay> mapOverlays = mapView.getOverlays();
+		// mapOverlays.clear();
+		Drawable drawable = this.getResources().getDrawable(
+				R.drawable.targetmarker);
+		MapItemizedOverlay itemizedOverlay = new MapItemizedOverlay(drawable,
+				this);
+
+		GeoPoint point = userLocation;
+		OverlayItem overlayItem = new OverlayItem(point, "Hola, Mundo!",
+				"I'm in Mexico City!");
+
+		itemizedOverlay.addOverlay(overlayItem);
+		mapOverlays.add(itemizedOverlay);
+
+		MapController mc = mapView.getController();
+		mc.animateTo(point);
+
+		mc.setZoom(19);
 	}
 
 	private void updateTargetLocation() {
@@ -195,14 +200,14 @@ public class MainActivity extends MapActivity implements
 		getMenuInflater().inflate(R.menu.activity_main, menu);
 		return true;
 	}
-	
+
 	@Override
 	public void onLocationChanged(Location location) {
-		int lat = (int) (location.getLatitude()*1e6);
-		int lng = (int) (location.getLongitude()*1e6);
-		userLocation = new GeoPoint(lat,lng);
+		int lat = (int) (location.getLatitude() * 1e6);
+		int lng = (int) (location.getLongitude() * 1e6);
+		userLocation = new GeoPoint(lat, lng);
 	}
-	
+
 	@Override
 	public void onProviderEnabled(String provider) {
 		Toast.makeText(this, "Enabled new provider " + provider,
@@ -215,7 +220,7 @@ public class MainActivity extends MapActivity implements
 		Toast.makeText(this, "Disabled provider " + provider,
 				Toast.LENGTH_SHORT).show();
 	}
-	
+
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		// TODO Auto-generated method stub
@@ -345,9 +350,9 @@ public class MainActivity extends MapActivity implements
 		Log.d(TAG, "onResume");
 
 		super.onResume();
-		
+
 		locationManager.requestLocationUpdates(provider, 400, 1, this);
-		
+
 		enableForegroundMode();
 
 		registerUser();
@@ -372,6 +377,11 @@ public class MainActivity extends MapActivity implements
 				} else {
 					Log.d(TAG, "User  found!!");
 					JSONObject jsonObject = new JSONObject(JSONString);
+					settings.edit()
+							.putString("user_secretcode",
+									jsonObject.getString("SecretCode"))
+							.commit();
+
 					// TODO: stuff for the user
 				}
 			} catch (InterruptedException e) {
@@ -395,7 +405,7 @@ public class MainActivity extends MapActivity implements
 		super.onPause();
 
 		locationManager.removeUpdates(this);
-		
+
 		disableForegroundMode();
 	}
 
