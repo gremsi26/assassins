@@ -382,7 +382,7 @@ public class MainActivity extends MapActivity implements
 	}
 
 	public void registerUser() {
-		Log.d(TAG, "REGISTERING THE USER!!");
+		Log.d(TAG, "Checking to see if the user is registered");
 		String name = settings.getString("user_name", "");
 		if (!name.equals("")) {
 			GetUserFromServer gufs = new GetUserFromServer(settings, "default");
