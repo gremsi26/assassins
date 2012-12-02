@@ -15,7 +15,6 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
-import com.google.android.maps.MyLocationOverlay;
 import com.hkw.assassins.asyctasks.GetUserFromServer;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
@@ -31,6 +30,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -49,9 +52,13 @@ import android.view.View;
 import android.widget.Toast;
 
 public class MainActivity extends MapActivity implements
-		CreateNdefMessageCallback, OnNdefPushCompleteCallback {
+		CreateNdefMessageCallback, OnNdefPushCompleteCallback, LocationListener {
 
 	private MapView mapView;
+	private LocationManager locationManager;
+	private GeoPoint userLocation;
+	private String provider;
+	 
 	private String TAG = "MainActivity";
 	private static final int MESSAGE_SENT = 1;
 	NfcAdapter nfcAdapter;
@@ -134,25 +141,34 @@ public class MainActivity extends MapActivity implements
 		//View zoomView = mapView.getZoomControls();
 		//mapView.displayZoomControls(true);
 		
+		// Get the location manager
+	    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+	    // Define the criteria how to select the location provider -> use
+	    // default
+	    Criteria criteria = new Criteria();
+	    provider = locationManager.getBestProvider(criteria, false);
+	    Location location = locationManager.getLastKnownLocation(provider);
+	    
+	    // Initialize the location fields
+	    if (location != null) {
+	      onLocationChanged(location);
+	    } else {
+	      userLocation = new GeoPoint(33776902,-84396530);
+	    }
+		
 		List<Overlay> mapOverlays = mapView.getOverlays();
 		//mapOverlays.clear();
 	    Drawable drawable = this.getResources().getDrawable(R.drawable.targetmarker);
 	    MapItemizedOverlay itemizedOverlay = new MapItemizedOverlay(drawable, this);
 	    
-	    MyLocationOverlay myLocOverlay = new MyLocationOverlay(this, mapView);
-	    myLocOverlay.enableMyLocation();
-	    mapOverlays.add(myLocOverlay);
-	    GeoPoint myGeopoint = myLocOverlay.getMyLocation();
-	    mapView.getController().animateTo(myGeopoint);
-	    
-	    //GeoPoint point = new GeoPoint(33776902,-84396530);
-	    //OverlayItem overlayItem = new OverlayItem(point, "Hola, Mundo!", "I'm in Mexico City!");
+	    GeoPoint point = userLocation;
+	    OverlayItem overlayItem = new OverlayItem(point, "Hola, Mundo!", "I'm in Mexico City!");
 
-	    //itemizedOverlay.addOverlay(overlayItem);
-	    //mapOverlays.add(itemizedOverlay);
+	    itemizedOverlay.addOverlay(overlayItem);
+	    mapOverlays.add(itemizedOverlay);
 	    
 	    MapController mc = mapView.getController();
-	    //mc.animateTo(point);
+	    mc.animateTo(point);
 	    mc.setZoom(19);
 	}
 	
@@ -180,6 +196,32 @@ public class MainActivity extends MapActivity implements
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_main, menu);
 		return true;
+	}
+	
+	@Override
+	public void onLocationChanged(Location location) {
+		int lat = (int) (location.getLatitude()*1e6);
+		int lng = (int) (location.getLongitude()*1e6);
+		userLocation = new GeoPoint(lat,lng);
+	}
+	
+	@Override
+	public void onProviderEnabled(String provider) {
+		Toast.makeText(this, "Enabled new provider " + provider,
+				Toast.LENGTH_SHORT).show();
+
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+		Toast.makeText(this, "Disabled provider " + provider,
+				Toast.LENGTH_SHORT).show();
+	}
+	
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// TODO Auto-generated method stub
+
 	}
 
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -305,7 +347,9 @@ public class MainActivity extends MapActivity implements
 		Log.d(TAG, "onResume");
 
 		super.onResume();
-
+		
+		locationManager.requestLocationUpdates(provider, 400, 1, this);
+		
 		enableForegroundMode();
 
 		registerUser();
@@ -352,6 +396,8 @@ public class MainActivity extends MapActivity implements
 
 		super.onPause();
 
+		locationManager.removeUpdates(this);
+		
 		disableForegroundMode();
 	}
 
