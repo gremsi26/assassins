@@ -15,7 +15,6 @@ import org.ndeftools.wellknown.TextRecord;
 import com.google.android.gcm.GCMRegistrar;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
@@ -136,7 +135,7 @@ public class MainActivity extends MapActivity implements
 		}
 
 		timer = new Timer();
-        timer.schedule(new taskUpdateTarget(), 0, 10000);
+		timer.schedule(new taskUpdateTarget(), 0, 10000);
 	}
 
 	/**
@@ -151,39 +150,45 @@ public class MainActivity extends MapActivity implements
 
 		/* GETTING CURRENT USER LOCATION */
 		// Get the location manager
-	    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-	    // Define the criteria how to select the location provider -> use
-	    Criteria criteria = new Criteria();
-	    provider = locationManager.getBestProvider(criteria, false);
-	    locationManager.requestSingleUpdate(provider,this,null);
-	    Location location = locationManager.getLastKnownLocation(provider);
-	    
-	    // Initialize the location fields
-	    if (location != null) {
-	      onLocationChanged(location);
-	    } 
-	    //else {
-	    //  userLocation = new GeoPoint(33776902,-84396530);
-	    //}
+		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		// Define the criteria how to select the location provider -> use
+		Criteria criteria = new Criteria();
+		provider = locationManager.getBestProvider(criteria, false);
+		locationManager.requestSingleUpdate(provider, this, null);
+		Location location = locationManager.getLastKnownLocation(provider);
+
+		// Initialize the location fields
+		if (location != null) {
+			onLocationChanged(location);
+		}
+		// else {
+		// userLocation = new GeoPoint(33776902,-84396530);
+		// }
 		/* END GETTING CURRENT USER LOCATION */
-	    
+
 		updateTargetLocation();
 	}
-	
-	private void updateTargetLocation(){
+
+	private void updateTargetLocation() {
 		List<Overlay> mapOverlays = mapView.getOverlays();
 		mapOverlays.clear();
-	    Drawable drawable = this.getResources().getDrawable(R.drawable.targetmarker);
-	    MapItemizedOverlay itemizedOverlay = new MapItemizedOverlay(drawable, this);
-	    
-	    double targetLat = Double.parseDouble(settings.getString("target_latitude", "33.776902"));
-	    double targetLng = Double.parseDouble(settings.getString("target_longitude", "-84.396530"));
-	    int targetLatE6 = (int)(targetLat * 1e6);
-	    int targetLngE6 = (int)(targetLng * 1e6);
-	    
-	    GeoPoint targetLocation = new GeoPoint(targetLatE6,targetLngE6);
-	    String targetName = settings.getString("target_name", "Your Unnamed Target");
-	    OverlayItem overlayItem = new OverlayItem(targetLocation, targetName, "was last spotted here!");
+		Drawable drawable = this.getResources().getDrawable(
+				R.drawable.targetmarker);
+		MapItemizedOverlay itemizedOverlay = new MapItemizedOverlay(drawable,
+				this);
+
+		double targetLat = Double.parseDouble(settings.getString(
+				"target_latitude", "33.776902"));
+		double targetLng = Double.parseDouble(settings.getString(
+				"target_longitude", "-84.396530"));
+		int targetLatE6 = (int) (targetLat * 1e6);
+		int targetLngE6 = (int) (targetLng * 1e6);
+
+		GeoPoint targetLocation = new GeoPoint(targetLatE6, targetLngE6);
+		String targetName = settings.getString("target_name",
+				"Your Unnamed Target");
+		OverlayItem overlayItem = new OverlayItem(targetLocation, targetName,
+				"was last spotted here!");
 	}
 
 	@Override
@@ -495,18 +500,18 @@ public class MainActivity extends MapActivity implements
 		vibe.vibrate(500);
 	}
 
-	//tells activity to run on ui thread
-	   class taskUpdateTarget extends TimerTask {
+	// tells activity to run on ui thread
+	class taskUpdateTarget extends TimerTask {
 
-	        @Override
-	        public void run() {
-	            MainActivity.this.runOnUiThread(new Runnable() {
+		@Override
+		public void run() {
+			MainActivity.this.runOnUiThread(new Runnable() {
 
-	                @Override
-	                public void run() {
-	                   updateTargetLocation();
-	                }
-	            });
-	        }
-	   };
+				@Override
+				public void run() {
+					updateTargetLocation();
+				}
+			});
+		}
+	};
 }
