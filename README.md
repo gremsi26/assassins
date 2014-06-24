@@ -14,5 +14,6 @@ Target
 --------
 The target will use the application if he notices the assassin before getting eliminated. He will bump phones with the assassin, while the app is open, and initiate the transfer. This will create a “timeout” period where the assassin cannot eliminate the target for a set amount of time.
 
-
+APIs
+--------
 We plan to use the Android SDK to build the game and NFC technology to share data between users. Location services such as Google Maps will also be used to display targets and other information. Google Cloud Messaging might be used if we need push notifications from servers to users.
